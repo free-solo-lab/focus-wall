@@ -1,6 +1,6 @@
 import { FormEvent, startTransition, useEffect, useState } from "react";
 import { getHostnameDedupKey } from "../lib/hostname";
-import { getMessages, LANGUAGES } from "../lib/i18n";
+import { getMessages } from "../lib/i18n";
 import { normalizeHostname } from "../lib/normalize";
 import { loadSettings, saveSettings } from "../lib/storage";
 import { DEFAULT_SETTINGS, type BlockedSite, type ExtensionSettings, type Language } from "../lib/types";
@@ -116,27 +116,28 @@ export function App() {
     });
   }
 
+  async function handleLanguageToggle() {
+    await handleLanguageChange(settings.language === "en" ? "ru" : "en");
+  }
+
   return (
     <main className="page-shell">
+      <header className="app-header">
+        <h1 className="app-title">{messages.productName}</h1>
+        <button
+          className="language-toggle"
+          type="button"
+          onClick={() => void handleLanguageToggle()}
+          disabled={saving}
+          aria-label={messages.languageLabel}
+        >
+          EN/RU
+        </button>
+      </header>
+
       <section className="hero-card">
-        <div className="hero-topline">
-          <p className="eyebrow">{messages.productName}</p>
-          <label className="language-field">
-            <span>{messages.languageLabel}</span>
-            <select
-              value={settings.language}
-              onChange={(event) => void handleLanguageChange(event.target.value as Language)}
-              disabled={saving}
-            >
-              {LANGUAGES.map((language) => (
-                <option key={language.code} value={language.code}>
-                  {language.label}
-                </option>
-              ))}
-            </select>
-          </label>
-        </div>
-        <h1>{messages.heroTitle}</h1>
+        <p className="eyebrow">{messages.heroEyebrow}</p>
+        <h2>{messages.heroTitle}</h2>
         <p className="hero-copy">{messages.heroCopy}</p>
 
         <form className="site-form" onSubmit={handleSubmit}>
@@ -174,16 +175,6 @@ export function App() {
         {error ? <p className="feedback error">{error}</p> : null}
         {saving ? <p className="feedback">{messages.savingStatus}</p> : null}
         {loading ? <p className="feedback">{messages.loadingStatus}</p> : null}
-      </section>
-
-      <section className="list-card">
-        <div className="list-header">
-          <div>
-            <p className="eyebrow">{messages.listEyebrow}</p>
-            <h2>{messages.currentRulesTitle}</h2>
-          </div>
-          <p className="list-caption">{messages.listCaption}</p>
-        </div>
 
         {settings.blockedSites.length === 0 ? (
           <div className="empty-state">
